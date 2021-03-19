@@ -6,11 +6,16 @@
 .controls-wrapper {
 	display: flex;
 	justify-content: flex-end;
+	align-items: center;
 }
 
-.controls-wrapper button{
+.controls-wrapper button {
 	padding: 10px;
 	margin-right: 10px;
+}
+
+.controls-wrapper select {
+	margin-left: 10px;
 }
 
 .menu-wrapper {

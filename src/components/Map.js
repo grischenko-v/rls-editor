@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { getBezierCurve } from '../utils';
 import { Map, Placemark, Polyline, YMaps } from 'react-yandex-maps';
 import { Droppable } from './Droppable';
 
@@ -8,17 +7,8 @@ const mapData = {
 	zoom: 5,
 };
 
-export const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex, simulationSpeed, pointer, setPointer}) => {
+export const RLSMap = ({placemarks,setPlacmarks, setTargets, start, setPointerIndex, pointerIndex, simulationSpeed, pointer, setPointer, bezeir }) => {
 	const mapRef = useRef(null);
-	const [bezeir, setBezier] = useState([]);
-
-	React.useEffect(() => {
-		setBezier(getBezierCurve(placemarks, 0.01));
-
-		if(!pointer) {
-			setPointer(placemarks[0]);
-		}
-	}, [placemarks]);
 
 	React.useEffect(() => {
 		if(start) {
