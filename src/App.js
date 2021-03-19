@@ -84,7 +84,7 @@ export const Droppable = ({allowedDropEffect, children, map, setPlacmarks, setTa
 	</div>);
 };
 
-const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex}) => {
+const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex, simulationSpeed}) => {
 	const mapRef = useRef(null);
 	const [bezeir, setBezier] = useState([]);
 	const [pointer, setPointer] = useState([]);
@@ -103,11 +103,10 @@ const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, p
 				if( pointerIndex < bezeir.length) {
 					setPointer(bezeir[pointerIndex]);
 					setPointerIndex(pointerIndex => pointerIndex + 1);
-					console.log(pointer);
 				}
-			}, 200);
+			}, 1000/simulationSpeed);
 		}
-	}, [start, bezeir, pointerIndex]);
+	}, [start, bezeir, pointerIndex, simulationSpeed]);
 
 	return <Droppable allowedDropEffect={'copy'} map={mapRef} setPlacmarks={setPlacmarks} setTargets={setTargets}>
 		<Map defaultState={mapData}
@@ -124,7 +123,7 @@ const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, p
 					strokeOpacity: 0.5,
 				}}
 			/>
-			{pointer.length < 1 && <Placemark geometry={pointer} options={{preset: 'islands#circleIcon', iconColor: '#D9300C'}}/>}
+			{pointer.length !== 0 && <Placemark geometry={pointer} options={{preset: 'islands#circleIcon', iconColor: '#D9300C'}}/>}
 			<Polyline
 				geometry={bezeir}
 				options={{
@@ -143,15 +142,19 @@ const App = () => {
 	const [targets, setTargets] = useState([]);
 	const [start, setStart] = useState(false);
 	const [pointerIndex, setPointerIndex] = useState(0);
+	const [simulationSpeed, setSimulationSpeed] = useState(1);
 
-
-	const resetPlacmarks = () => setPlacmarks([]);
+	const resetPlacmarks = () => {
+		setPlacmarks([]);
+		setTargets([]);
+	}
 	const onStart = () => setStart(true);
 	const onPause = () => setStart(false);
 	const onStop = () => {
 		setStart(false);
 		setPointerIndex(0);
 	}
+	const onSelect = (e) => setSimulationSpeed(e.target.value + 1);
 
 	return (<DndProvider backend={HTML5Backend}>
 			<div className='controls-wrapper'>
@@ -159,6 +162,11 @@ const App = () => {
 				<button onClick={onStart}>Start simulation</button>
 				<button onClick={onPause}>Pause simulation</button>
 				<button onClick={onStop}>Restart simulation</button>
+				<select name='speed' onChange={onSelect}>
+					{new Array(10)
+						.fill(0)
+						.map((item, index) => <option key={`option__${index + 1}`} value={index + 1}>{index + 1}x</option>)}
+				</select>
 			</div>
 			<div className='wrapper'>
 				<div className='menu-wrapper'>
@@ -182,7 +190,8 @@ const App = () => {
 								setTargets={setTargets}
 								start={start}
 								setPointerIndex={setPointerIndex}
-								pointerIndex={pointerIndex}/>
+								pointerIndex={pointerIndex}
+								simulationSpeed={simulationSpeed}/>
 					</YMaps>
 				</div>
 			</div>
