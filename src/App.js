@@ -84,10 +84,9 @@ export const Droppable = ({allowedDropEffect, children, map, setPlacmarks, setTa
 	</div>);
 };
 
-const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex, simulationSpeed}) => {
+const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex, simulationSpeed, pointer, setPointer}) => {
 	const mapRef = useRef(null);
 	const [bezeir, setBezier] = useState([]);
-	const [pointer, setPointer] = useState([]);
 
 	React.useEffect(() => {
 		setBezier(getBezierCurve(placemarks, 0.01));
@@ -143,16 +142,19 @@ const App = () => {
 	const [start, setStart] = useState(false);
 	const [pointerIndex, setPointerIndex] = useState(0);
 	const [simulationSpeed, setSimulationSpeed] = useState(1);
+	const [pointer, setPointer] = useState([]);
 
 	const resetPlacmarks = () => {
 		setPlacmarks([]);
 		setTargets([]);
+		setPointer([]);
 	}
 	const onStart = () => setStart(true);
 	const onPause = () => setStart(false);
-	const onStop = () => {
+	const onReload = () => {
 		setStart(false);
 		setPointerIndex(0);
+		setPointer([]);
 	}
 	const onSelect = (e) => setSimulationSpeed(e.target.value + 1);
 
@@ -161,7 +163,7 @@ const App = () => {
 				<button onClick={resetPlacmarks}>Reset placemarks</button>
 				<button onClick={onStart}>Start simulation</button>
 				<button onClick={onPause}>Pause simulation</button>
-				<button onClick={onStop}>Restart simulation</button>
+				<button onClick={onReload}>Reload simulation</button>
 				<select name='speed' onChange={onSelect}>
 					{new Array(10)
 						.fill(0)
@@ -191,7 +193,9 @@ const App = () => {
 								start={start}
 								setPointerIndex={setPointerIndex}
 								pointerIndex={pointerIndex}
-								simulationSpeed={simulationSpeed}/>
+								simulationSpeed={simulationSpeed}
+								pointer={pointer}
+								setPointer={setPointer}/>
 					</YMaps>
 				</div>
 			</div>
