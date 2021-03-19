@@ -3,6 +3,16 @@
 	display: flex;
 }
 
+.controls-wrapper {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.controls-wrapper button{
+	padding: 10px;
+	margin-right: 10px;
+}
+
 .menu-wrapper {
 	border: 1px solid #CCC;
 	margin-right: 20px;

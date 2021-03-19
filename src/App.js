@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { YMaps, Map, Placemark } from 'react-yandex-maps';
+import { YMaps, Map, Placemark, Polyline } from 'react-yandex-maps';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './App.css';
@@ -9,6 +9,45 @@ const mapData = {
 	center: [55.751574, 37.573856],
 	zoom: 5,
 };
+
+function getBezierBasis(i, n, t) {
+	function f(n) {
+		return (n <= 1) ? 1 : n * f(n - 1);
+	}
+
+	return (f(n)/(f(i)*f(n - i)))* Math.pow(t, i)*Math.pow(1 - t, n - i);
+}
+
+function getBezierCurve(arr, step) {
+	if (step == undefined) {
+		step = 0.01;
+	}
+
+	if(arr.length < 2) {
+		return [];
+	}
+
+	var res = new Array()
+
+	for (var t = 0; t < 1 + step; t += step) {
+		if (t > 1) {
+			t = 1;
+		}
+
+		var ind = res.length;
+
+		res[ind] = new Array(0, 0);
+
+		for (var i = 0; i < arr.length; i++) {
+			var b = getBezierBasis(i, arr.length - 1, t);
+
+			res[ind][0] += arr[i][0] * b;
+			res[ind][1] += arr[i][1] * b;
+		}
+	}
+
+	return res;
+}
 
 export const Draggable = ({name}) => {
 	const [{opacity}, drag] = useDrag(() => ({
@@ -28,14 +67,15 @@ export const Droppable = ({allowedDropEffect, children, map, setPlacmarks, setTa
 		accept: 'draggable',
 		drop: (item, monitor) => {
 			setTargets(targets => {
-				const count = targets.filter(target => target.indexOf(item.name) !== -1).length;
-				return [...targets, `${item.name}_${count}`];
+				const count = targets.filter(target => target.indexOf(item.name) !== -1).length + 1;
+				return [...targets, `${item.name} ${count}`];
 			});
 			const projection = map.current.options.get('projection');
 			const mapObject = map.current
 			const position = monitor.getClientOffset();
 			const newPlacemark = projection.fromGlobalPixels(mapObject.converter.pageToGlobal([position.x, position.y]),
 				mapObject.getZoom())
+
 			setPlacmarks((placemarks) => [...placemarks, newPlacemark])
 		},
 	}), [allowedDropEffect]);
@@ -44,8 +84,30 @@ export const Droppable = ({allowedDropEffect, children, map, setPlacmarks, setTa
 	</div>);
 };
 
-const RLSMap = ({placemarks, setPlacmarks, setTargets}) => {
+const RLSMap = ({placemarks, setPlacmarks, setTargets, start, setPointerIndex, pointerIndex}) => {
 	const mapRef = useRef(null);
+	const [bezeir, setBezier] = useState([]);
+	const [pointer, setPointer] = useState([]);
+
+	React.useEffect(() => {
+		setBezier(getBezierCurve(placemarks, 0.01));
+
+		if(!pointer) {
+			setPointer(placemarks[0]);
+		}
+	}, [placemarks]);
+
+	React.useEffect(() => {
+		if(start) {
+			setTimeout(() => {
+				if( pointerIndex < bezeir.length) {
+					setPointer(bezeir[pointerIndex]);
+					setPointerIndex(pointerIndex => pointerIndex + 1);
+					console.log(pointer);
+				}
+			}, 200);
+		}
+	}, [start, bezeir, pointerIndex]);
 
 	return <Droppable allowedDropEffect={'copy'} map={mapRef} setPlacmarks={setPlacmarks} setTargets={setTargets}>
 		<Map defaultState={mapData}
@@ -53,6 +115,25 @@ const RLSMap = ({placemarks, setPlacmarks, setTargets}) => {
 			 height={900}
 			instanceRef={mapRef}>
 			{placemarks.map(placemark => <Placemark key={`${placemark[0]}__${placemark[1]}`} geometry={placemark}/>)}
+			<Polyline
+				geometry={bezeir.slice(0, pointerIndex)}
+				options={{
+					balloonCloseButton: false,
+					strokeColor: '#FFD733',
+					strokeWidth: 4,
+					strokeOpacity: 0.5,
+				}}
+			/>
+			{pointer.length < 1 && <Placemark geometry={pointer} options={{preset: 'islands#circleIcon', iconColor: '#D9300C'}}/>}
+			<Polyline
+				geometry={bezeir}
+				options={{
+					balloonCloseButton: false,
+					strokeColor: '#ff5733',
+					strokeWidth: 2,
+					strokeStyle: 'dash',
+				}}
+			/>
 		</Map>
 	</Droppable>
 }
@@ -60,8 +141,25 @@ const RLSMap = ({placemarks, setPlacmarks, setTargets}) => {
 const App = () => {
 	const [placemarks, setPlacmarks] = useState([]);
 	const [targets, setTargets] = useState([]);
+	const [start, setStart] = useState(false);
+	const [pointerIndex, setPointerIndex] = useState(0);
+
+
+	const resetPlacmarks = () => setPlacmarks([]);
+	const onStart = () => setStart(true);
+	const onPause = () => setStart(false);
+	const onStop = () => {
+		setStart(false);
+		setPointerIndex(0);
+	}
 
 	return (<DndProvider backend={HTML5Backend}>
+			<div className='controls-wrapper'>
+				<button onClick={resetPlacmarks}>Reset placemarks</button>
+				<button onClick={onStart}>Start simulation</button>
+				<button onClick={onPause}>Pause simulation</button>
+				<button onClick={onStop}>Restart simulation</button>
+			</div>
 			<div className='wrapper'>
 				<div className='menu-wrapper'>
 					<h3>Target types</h3>
@@ -79,7 +177,12 @@ const App = () => {
 				</div>
 				<div >
 					<YMaps>
-						<RLSMap placemarks={placemarks} setPlacmarks={setPlacmarks} setTargets={setTargets}/>
+						<RLSMap placemarks={placemarks}
+								setPlacmarks={setPlacmarks}
+								setTargets={setTargets}
+								start={start}
+								setPointerIndex={setPointerIndex}
+								pointerIndex={pointerIndex}/>
 					</YMaps>
 				</div>
 			</div>
