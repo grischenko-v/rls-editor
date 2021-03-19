@@ -41,6 +41,7 @@ const App = () => {
 	const onSelect = (e) => setSimulationSpeed(e.target.value + 1);
 
 	const onSliderChange = (e) => {
+		setStart(false);
 		setPointerIndex(e.x);
 		setPointer(bezeir[e.x])
 	}
