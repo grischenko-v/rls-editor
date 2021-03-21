@@ -17,26 +17,22 @@ const App = () => {
 	const [simulationSpeed, setSimulationSpeed] = useState(1);
 	const [pointer, setPointer] = useState([]);
 	const [bezeir, setBezier] = useState([]);
+	const [selectedTarget, setSelectedTarget] = useState('');
+	const [targetsPoints, setTargetsPoints] = useState({});
 
 	React.useEffect(() => {
-		setBezier(getBezierCurve(placemarks, 0.01));
-
-		if(!pointer) {
-			setPointer(placemarks[0]);
+		if(targetsPoints[selectedTarget]) {
+			setBezier(getBezierCurve(placemarks, 0.01));
+			setPointer(targetsPoints[selectedTarget][0]);
 		}
-	}, [placemarks]);
+	}, [placemarks, selectedTarget, targetsPoints]);
 
-	const resetPlacmarks = () => {
-		setPlacmarks([]);
-		setTargets([]);
-		setPointer([]);
-	}
 	const onStart = () => setStart(true);
 	const onPause = () => setStart(false);
 	const onReload = () => {
 		setStart(false);
 		setPointerIndex(0);
-		setPointer([]);
+		setPointer(targetsPoints[selectedTarget][0]);
 	}
 	const onSelect = (e) => setSimulationSpeed(e.target.value + 1);
 
@@ -46,9 +42,16 @@ const App = () => {
 		setPointer(bezeir[e.x])
 	}
 
+	const onTargetSelect = (item) => {
+		setSelectedTarget(item);
+		setPlacmarks(targetsPoints[item]);
+		setPointerIndex(0);
+		setPointer(targetsPoints[selectedTarget][0]);
+		setStart(false);
+	}
+
 	return (<DndProvider backend={HTML5Backend}>
 			<div className='controls-wrapper'>
-				<button onClick={resetPlacmarks}>Reset placemarks</button>
 				<button onClick={onStart}>Start simulation</button>
 				<button onClick={onPause}>Pause simulation</button>
 				<button onClick={onReload}>Reload simulation</button>
@@ -71,12 +74,17 @@ const App = () => {
 					</ul>
 					<h3>Targets</h3>
 					<ul className='list'>
-						{targets.map(item => <li key={item} className='list-item'>{item}</li>)}
+						{targets.map(item => <li
+							key={item}
+							className={`list-item ${selectedTarget === item ? 'list-item--selected' : ''}`}
+							onClick={() => onTargetSelect(item)}>
+							{item}
+						</li>)}
 					</ul>
 				</div>
 				<div >
-
-						<RLSMap placemarks={placemarks}
+						<RLSMap
+								placemarks={placemarks}
 								setPlacmarks={setPlacmarks}
 								setTargets={setTargets}
 								start={start}
@@ -85,7 +93,11 @@ const App = () => {
 								simulationSpeed={simulationSpeed}
 								pointer={pointer}
 								setPointer={setPointer}
-								bezeir={bezeir}/>
+								bezeir={bezeir}
+								selectedTarget={selectedTarget}
+								setSelectedTarget={setSelectedTarget}
+								targetsPoint={targetsPoints}
+								setTargetsPoints={setTargetsPoints}/>
 
 				</div>
 			</div>

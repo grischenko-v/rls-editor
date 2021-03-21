@@ -1,21 +1,28 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
+import { globalToMap } from '../utils';
 
-export const Droppable = ({allowedDropEffect, children, map, setPlacmarks, setTargets}) => {
+export const Droppable = ({allowedDropEffect, children, map, setTargets, setSelectedTarget, setTargetsPoints, setPlacmarks}) => {
 	const [_, drop] = useDrop(() => ({
 		accept: 'draggable',
 		drop: (item, monitor) => {
 			setTargets(targets => {
 				const count = targets.filter(target => target.indexOf(item.name) !== -1).length + 1;
+
+				const mapObject = map.current
+				const projection = mapObject.options.get('projection');
+				const position = monitor.getClientOffset();
+				const newPlacemark = globalToMap(projection, position, mapObject);
+				setTargetsPoints(points => {
+					const copy = {...points};
+					copy[`${item.name} ${count}`] = [newPlacemark];
+					setPlacmarks([newPlacemark]);
+					return copy;
+				});
+				setSelectedTarget(`${item.name} ${count}`);
+
 				return [...targets, `${item.name} ${count}`];
 			});
-			const projection = map.current.options.get('projection');
-			const mapObject = map.current
-			const position = monitor.getClientOffset();
-			const newPlacemark = projection.fromGlobalPixels(mapObject.converter.pageToGlobal([position.x, position.y]),
-				mapObject.getZoom())
-
-			setPlacmarks((placemarks) => [...placemarks, newPlacemark])
 		},
 	}), [allowedDropEffect]);
 	return (<div ref={drop}>

@@ -32,3 +32,7 @@
 .list-item:hover {
 	background-color: aqua;
 }
+
+.list-item--selected {
+	background-color: #00A6FF;
+}

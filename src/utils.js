@@ -36,3 +36,15 @@ export function getBezierCurve(arr, step) {
 
 	return res;
 }
+
+
+export function globalToMap (projection, position, mapObject) {
+	return projection.fromGlobalPixels(mapObject.converter.pageToGlobal([position.x, position.y]),
+		mapObject.getZoom());
+}
+
+export const removeByIndex = (arr, index) => {
+	const copy = [...arr];
+	copy.splice(index, 1);
+	return copy;
+}
