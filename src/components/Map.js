@@ -2,6 +2,7 @@ import React, {useRef, useState} from 'react';
 import { Map, Placemark, Polyline, YMaps } from 'react-yandex-maps';
 import { Droppable } from './Droppable';
 import { globalToMap, removeByIndex } from '../utils';
+import RouteBuilder from './RouteBuilder';
 
 const mapData = {
 	center: [55.751574, 37.573856],
@@ -9,16 +10,11 @@ const mapData = {
 };
 
 export const RLSMap = ({
-						   placemarks,
-						   setPlacmarks,
 						   setTargets,
 						   start,
 						   setPointerIndex,
 						   pointerIndex,
 						   simulationSpeed,
-						   pointer,
-						   setPointer,
-						   bezeir,
 						   selectedTarget,
 						   setSelectedTarget,
 						   targetsPoint,
@@ -29,13 +25,12 @@ export const RLSMap = ({
 	React.useEffect(() => {
 		if (start) {
 			setTimeout(() => {
-				if (pointerIndex < bezeir.length) {
-					setPointer(bezeir[pointerIndex]);
+				if (pointerIndex < 100) {
 					setPointerIndex(pointerIndex => pointerIndex + 1);
 				}
 			}, 1000 / simulationSpeed);
 		}
-	}, [start, bezeir, pointerIndex, simulationSpeed]);
+	}, [start, pointerIndex, simulationSpeed]);
 
 	const onPlaceMarkDrag = (e, index) => {
 		const position = {
@@ -68,12 +63,6 @@ export const RLSMap = ({
 		});
 	};
 
-	React.useEffect(() => {
-		if(targetsPoint[selectedTarget]) {
-			setPlacmarks(targetsPoint[selectedTarget])
-		}
-	}, [targetsPoint]);
-
 	const onMapClick = (e) => {
 		if (selectedTarget) {
 			const newPoint = e.get('coords');
@@ -91,41 +80,26 @@ export const RLSMap = ({
 			map={mapRef}
 			setTargets={setTargets}
 			setSelectedTarget={setSelectedTarget}
-			setPlacmarks={setPlacmarks}
 			setTargetsPoints={setTargetsPoints}>
 			<Map defaultState={mapData}
 				 width={800}
 				 height={900}
 				 onClick={onMapClick}
+				 onContextmenu={() => setSelectedTarget('')}
 				 instanceRef={ref => {
 					 ref && ref.behaviors.disable('dblClickZoom');
 					 mapRef.current = ref;
 				 }}>
-				{placemarks.map((placemark, index) => <Placemark
-					key={`${placemark[0]}__${placemark[1]}__${index}`}
-					geometry={placemark}
-					options={{draggable: true}}
-					onDragEnd={(e) => onPlaceMarkDrag(e, index)}
-					onDblclick={(e) => onPlacmarkDbClick(e, index)}/>)}
-				{bezeir.length > 0 && <Polyline
-					geometry={bezeir.slice(0, pointerIndex)}
-					options={{
-						balloonCloseButton: false,
-						strokeColor: '#FFD733',
-						strokeWidth: 4,
-						strokeOpacity: 0.5,
-						editorMaxPoints: 20,
-					}}/>}
-				{pointer.length !== 0 &&
-				<Placemark geometry={pointer} options={{preset: 'islands#circleIcon', iconColor: '#D9300C'}}/>}
-				<Polyline
-					geometry={bezeir}
-					options={{
-						balloonCloseButton: false,
-						strokeColor: '#ff5733',
-						strokeWidth: 5,
-						strokeStyle: 'dash',
-					}}/>
+				{Object.keys(targetsPoint).map(item => targetsPoint[item]).map((points, routeIndex) => {
+					return (<RouteBuilder
+						pointerIndex={pointerIndex}
+						points={points}
+						onPlaceMarkDrag={onPlaceMarkDrag}
+						onPlacmarkDbClick={onPlacmarkDbClick}
+						key={`route__${routeIndex}__${points.length}`}
+						simulationSpeed={simulationSpeed}
+						start={start}/>);
+				})}
 			</Map>
 		</Droppable>
 	</YMaps>

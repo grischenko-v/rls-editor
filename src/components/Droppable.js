@@ -2,7 +2,7 @@ import React from 'react';
 import { useDrop } from 'react-dnd';
 import { globalToMap } from '../utils';
 
-export const Droppable = ({allowedDropEffect, children, map, setTargets, setSelectedTarget, setTargetsPoints, setPlacmarks}) => {
+export const Droppable = ({ allowedDropEffect, children, map, setTargets, setSelectedTarget, setTargetsPoints }) => {
 	const [_, drop] = useDrop(() => ({
 		accept: 'draggable',
 		drop: (item, monitor) => {
@@ -16,7 +16,6 @@ export const Droppable = ({allowedDropEffect, children, map, setTargets, setSele
 				setTargetsPoints(points => {
 					const copy = {...points};
 					copy[`${item.name} ${count}`] = [newPlacemark];
-					setPlacmarks([newPlacemark]);
 					return copy;
 				});
 				setSelectedTarget(`${item.name} ${count}`);
