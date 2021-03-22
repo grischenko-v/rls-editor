@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/rls-editor/static/css/main.2494524d.chunk.css",
+    "main.js": "/rls-editor/static/js/main.3e3f9e3a.chunk.js",
+    "main.js.map": "/rls-editor/static/js/main.3e3f9e3a.chunk.js.map",
+    "runtime-main.js": "/rls-editor/static/js/runtime-main.51d24fbe.js",
+    "runtime-main.js.map": "/rls-editor/static/js/runtime-main.51d24fbe.js.map",
+    "static/js/2.02f3ca71.chunk.js": "/rls-editor/static/js/2.02f3ca71.chunk.js",
+    "static/js/2.02f3ca71.chunk.js.map": "/rls-editor/static/js/2.02f3ca71.chunk.js.map",
+    "static/js/3.19104eaa.chunk.js": "/rls-editor/static/js/3.19104eaa.chunk.js",
+    "static/js/3.19104eaa.chunk.js.map": "/rls-editor/static/js/3.19104eaa.chunk.js.map",
+    "index.html": "/rls-editor/index.html",
+    "static/css/main.2494524d.chunk.css.map": "/rls-editor/static/css/main.2494524d.chunk.css.map",
+    "static/js/2.02f3ca71.chunk.js.LICENSE.txt": "/rls-editor/static/js/2.02f3ca71.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.51d24fbe.js",
+    "static/js/2.02f3ca71.chunk.js",
+    "static/css/main.2494524d.chunk.css",
+    "static/js/main.3e3f9e3a.chunk.js"
+  ]
+}
