@@ -90,13 +90,16 @@ export const RLSMap = ({
 					 ref && ref.behaviors.disable('dblClickZoom');
 					 mapRef.current = ref;
 				 }}>
-				{Object.keys(targetsPoint).map(item => targetsPoint[item]).map((points, routeIndex) => {
+				{Object.keys(targetsPoint)
+					.map(item => ({points: targetsPoint[item], name: item}))
+					.map((item, routeIndex) => {
 					return (<RouteBuilder
 						pointerIndex={pointerIndex}
-						points={points}
+						points={item.points}
+						editable={selectedTarget === item.name}
 						onPlaceMarkDrag={onPlaceMarkDrag}
 						onPlacmarkDbClick={onPlacmarkDbClick}
-						key={`route__${routeIndex}__${points.length}`}
+						key={`route__${routeIndex}__${item.points.length}`}
 						simulationSpeed={simulationSpeed}
 						start={start}/>);
 				})}

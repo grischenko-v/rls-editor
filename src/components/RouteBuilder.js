@@ -3,7 +3,7 @@ import { Placemark, Polyline } from 'react-yandex-maps';
 import { getBezierCurve } from '../utils';
 
 
-export default ({points, onPlaceMarkDrag, onPlacmarkDbClick, pointerIndex}) => {
+export default ({points, onPlaceMarkDrag, onPlacmarkDbClick, pointerIndex, editable}) => {
 	const [bezeir, setBezier] = useState(points);
 	const [pointer, setPointer] = useState([]);
 
@@ -17,9 +17,9 @@ export default ({points, onPlaceMarkDrag, onPlacmarkDbClick, pointerIndex}) => {
 	return <>
 		{ points.map((placemark, index) => <Placemark
 			key={`${placemark[0]}__${placemark[1]}__${index}`}
-			options={{draggable: true}}
-			onDragEnd={(e) => onPlaceMarkDrag(e, index)}
-			onDblclick={(e) => onPlacmarkDbClick(e, index)}
+			options={{draggable: editable}}
+			onDragEnd={(e) => editable && onPlaceMarkDrag(e, index)}
+			onDblclick={(e) => editable && onPlacmarkDbClick(e, index)}
 			geometry={placemark}/>)}
 		{pointer.length !== 0 &&
 			<Placemark geometry={bezeir[pointerIndex]} options={{preset: 'islands#circleIcon', iconColor: '#D9300C'}}/>}
