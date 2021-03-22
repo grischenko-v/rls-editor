@@ -13,15 +13,8 @@ const App = () => {
 	const [start, setStart] = useState(false);
 	const [pointerIndex, setPointerIndex] = useState(0);
 	const [simulationSpeed, setSimulationSpeed] = useState(1);
-	const [pointer, setPointer] = useState([]);
 	const [selectedTarget, setSelectedTarget] = useState('');
 	const [targetsPoints, setTargetsPoints] = useState({});
-
-	React.useEffect(() => {
-		if(targetsPoints[selectedTarget]) {
-			setPointer(targetsPoints[selectedTarget][0]);
-		}
-	}, [selectedTarget, targetsPoints]);
 
 	const onStart = () => setStart(true);
 	const onPause = () => setStart(false);
@@ -39,7 +32,6 @@ const App = () => {
 	const onTargetSelect = (item) => {
 		setSelectedTarget(item);
 		setPointerIndex(0);
-		setPointer(targetsPoints[selectedTarget][0]);
 		setStart(false);
 	}
 
@@ -75,14 +67,13 @@ const App = () => {
 						</li>)}
 					</ul>
 				</div>
-				<div >
+				<div>
 						<RLSMap
 								setTargets={setTargets}
 								start={start}
 								setPointerIndex={setPointerIndex}
 								pointerIndex={pointerIndex}
 								simulationSpeed={simulationSpeed}
-								pointer={pointer}
 								selectedTarget={selectedTarget}
 								setSelectedTarget={setSelectedTarget}
 								targetsPoint={targetsPoints}
